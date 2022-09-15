@@ -1,11 +1,8 @@
 from django import forms
-from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 
-from accounts.models import User, OTPCode
+from accounts.models import User
 
 
 class UserCreationForm(forms.ModelForm):
@@ -15,7 +12,7 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('email', 'date_of_birth')
+        fields = ('email', 'full_name')
 
     def clean_password2(self):
         # Check that the two password entries match
@@ -43,32 +40,7 @@ class UserChangeForm(forms.ModelForm):
         fields = ('email', 'password', 'full_name', 'is_active', 'is_admin', 'is_author')
 
 
-class UserAdmin(BaseUserAdmin):
-    # The forms to add and change user instances
-    form = UserChangeForm
-    add_form = UserCreationForm
 
 
-    list_display = ('email', 'full_name', 'is_admin')
-    list_filter = ('is_admin',)
-    fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('full_name', 'profile_user')}),
-        ('Permissions', {'fields': ('is_admin', 'is_active', 'is_superuser')}),
-    )
-   
-    add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': ('email', 'full_name', 'password1', 'password2'),
-        }),
-    )
-    search_fields = ('email', '')
-    ordering = ('email',)
-    filter_horizontal = ()
 
 
-admin.site.register(User, UserAdmin)
-admin.site.register(OTPCode)
-
-admin.site.unregister(Group)
