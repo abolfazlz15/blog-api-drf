@@ -29,6 +29,9 @@ INSTALLED_APPS = [
     # my apps
     'blog.apps.BlogConfig',
     'accounts.apps.AccountsConfig',
+
+    # drf packages
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
