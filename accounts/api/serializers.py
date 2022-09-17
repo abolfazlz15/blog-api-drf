@@ -1,8 +1,7 @@
+from accounts.models import User, OTPCode
+from django.contrib.auth import authenticate, password_validation
 from rest_framework import serializers
-from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-
-
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -21,3 +20,34 @@ class LoginSerializer(serializers.Serializer):
             'access': str(refresh.access_token),
         })
                 
+
+class UserRegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('email','password','full_name')
+        extra_kwargs = {
+            'password':{'write_only': True},
+        }
+
+    def validate_password(self, value):
+        try:
+            password_validation.validate_password(value, self.instance)
+        except serializers.ValidationError as error:
+            self.add_error('password', error)
+        return value
+
+class OtpSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OTPCode
+        fields = ('code', 'email')
+
+class GetOtpSerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=4)
+
+
+    def save(self, validated_data):
+        refresh = RefreshToken.for_user(validated_data)
+        return ({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        })
