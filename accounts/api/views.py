@@ -1,7 +1,6 @@
 from random import randint
 
-from accounts.api.serializers import (GetOtpSerializer, LoginSerializer,
-                                      UserRegisterSerializer)
+from accounts.api import serializers
 from accounts.models import OTPCode, User
 from django.core.cache import cache
 from django.core.mail import EmailMessage
@@ -14,7 +13,7 @@ from rest_framework.views import APIView
 
 class UserLoginView(APIView):
     def post(self, request):
-        serializer = LoginSerializer(data=request.data)
+        serializer = serializers.LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         result = serializer.save(validated_data=serializer.validated_data)
         return Response(result)
@@ -22,7 +21,8 @@ class UserLoginView(APIView):
 
 class UserRegisterView(APIView):
     def post(self, request):
-        serializer = UserRegisterSerializer(data=request.data)
+        serializer = serializers.UserRegisterSerializer(data=request.data)
+
         if serializer.is_valid():
             randcode = randint(1000, 9999)
             cd = serializer.validated_data
@@ -47,18 +47,18 @@ class UserRegisterView(APIView):
 class CheckOtpCodeView(APIView):
     def post(self, request):
         data = cache.get(key='register')
-        serializer = GetOtpSerializer(data=request.data)
+        serializer = serializers.GetOtpSerializer(data=request.data)
         otp = OTPCode.objects.get(code=data['code'], email=data['email'])
-        expiration_date = otp.expiration_date + timezone.timedelta(minutes=2)
 
+        expiration_date = otp.expiration_date + timezone.timedelta(minutes=2)
         if expiration_date < timezone.now():
             otp.delete()
             return Response({'error': 'your code is expire'})
+
         if serializer.is_valid():
             if OTPCode.objects.filter(code=data['code'], email=data['email']).exists():
                 user = User.objects.create_user(email=data['email'], full_name=data['full_name'], password=data['password'])
-                serializer.email = user.email
-                serializer.password = user.password
+
                 result = serializer.save(validated_data=user)
                 otp.delete()
                 return Response(result)
@@ -66,10 +66,10 @@ class CheckOtpCodeView(APIView):
         return Response(serializer.errors) 
 
 
-        
-class TestApi(APIView):
+class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
+    
     def get(self, request):
-        return Response({'result': 'test', 'user': request.user.email})
-
+        serializer = serializers.UserProfileSerializer(instance=request.user)
+        return Response(serializer.data)
