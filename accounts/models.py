@@ -8,7 +8,7 @@ class User(PermissionsMixin, AbstractBaseUser):
         max_length=255,
         unique=True,
     )
-    full_name = models.CharField(max_length=60)
+    full_name = models.CharField(max_length=60, blank=True, null=True)
     profile_user = models.ImageField(upload_to='profile_user', null=True, blank=True)
     is_author = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

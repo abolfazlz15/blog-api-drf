@@ -52,7 +52,23 @@ class GetOtpSerializer(serializers.Serializer):
         })
 
 
-class UserProfileSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    full_name = serializers.CharField()
-        
+class UserProfileSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=False)
+    full_name = serializers.CharField(required=False)
+
+    class Meta:
+        model = User
+        fields = ('email', 'full_name')
+    
+
+    def validate_email(self, value):
+        user = User.objects.filter(email=value)
+        if user:
+            raise serializers.ValidationError({'error': 'this email exist'})
+        else:    
+            return value
+
+class GetOtpEmailChangeSerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=4)
+
+
