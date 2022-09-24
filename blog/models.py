@@ -11,7 +11,7 @@ from django.utils.translation import gettext as _
 def get_file_path(instance, filename):
     ext = filename.split('.')[-1]
     filename = '%s.%s' % (uuid.uuid4(), ext)
-    return os.path.join(f'user/{instance.user.id}/post/', filename)
+    return os.path.join(f'user/{instance.author.id}/post/', filename)
 
 
 class Tag(models.Model):
@@ -35,13 +35,15 @@ class Article(models.Model):
     text = models.TextField(verbose_name=_('Description'))
     image = models.ImageField(blank=True, null=True, upload_to=get_file_path, verbose_name=_('Image'))
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article', verbose_name=_('Author'))
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True, related_name='articles', verbose_name=_('Category'))
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, null=True, blank=True, related_name='articles', verbose_name=_('Tag'))
     status = models.BooleanField(default=False, verbose_name=_('Status'))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        self.slug = slugify(self.title)
-        super(Article, self).save()
+    # def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    #     self.slug = slugify(self.title)
+    #     super(Article, self).save()
 
     def __str__(self):
         return f'{self.title} - {self.text[:20]}'
