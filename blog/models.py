@@ -11,7 +11,7 @@ from django.utils.translation import gettext as _
 def get_file_path(instance, filename):
     ext = filename.split('.')[-1]
     filename = '%s.%s' % (uuid.uuid4(), ext)
-    return os.path.join(f'user/{instance.author.id}/post/', filename)
+    return os.path.join('article/post', filename)
 
 
 class Tag(models.Model):
