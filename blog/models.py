@@ -4,7 +4,6 @@ import uuid
 from accounts.models import User
 from django.db import models
 from django.utils.html import format_html
-from django.utils.text import slugify
 from django.utils.translation import gettext as _
 
 
@@ -41,9 +40,7 @@ class Article(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
 
-    # def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-    #     self.slug = slugify(self.title)
-    #     super(Article, self).save()
+
 
     def __str__(self):
         return f'{self.title} - {self.text[:20]}'
