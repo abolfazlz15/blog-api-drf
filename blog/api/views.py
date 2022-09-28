@@ -12,8 +12,16 @@ class ArticleListView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class ArticleDetailView(APIView):
     def get(self, request, pk):
         instance = Article.objects.get(id=pk)
         serializer = ArticleDetailSrializer(instance=instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ArticleDeleteView(APIView):
+    def delete(self, request, pk):
+        article = Article.objects.get(id=pk)
+        article.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
