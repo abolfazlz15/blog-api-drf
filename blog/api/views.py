@@ -1,18 +1,31 @@
 from blog.api import serializers
 from blog.api.permissions import IsAuthorOrReadOnly
 from blog.models import Article
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
+from rest_framework import filters
 
 
-class ArticleListView(APIView):
-    def get(self, request):
-        instance = Article.objects.filter(status=True)
-        serializer = serializers.ArticleListSrializer(instance=instance, many=True)
+class ArticleListView(ListAPIView):
+    queryset = Article.objects.filter(status=True)
+    serializer_class = serializers.ArticleListSrializer
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ['title']
+    filterset_fields = ['category']
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+# class ArticleListView(APIView):
+#     filter_backends = [DjangoFilterBackend]
+#     filterset_fields = ['category']
+#     def get(self, request):
+#         instance = Article.objects.filter(status=True)
+#         serializer = serializers.ArticleListSrializer(instance=instance, many=True)
+#         filter_backends = [DjangoFilterBackend]
+#         filterset_fields = ['category']
+#         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ArticleDetailView(APIView):
