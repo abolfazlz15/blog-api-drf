@@ -7,12 +7,13 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
 class UserLoginView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = serializers.LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -21,6 +22,7 @@ class UserLoginView(APIView):
  
 
 class UserRegisterView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = serializers.UserRegisterSerializer(data=request.data)
 
@@ -46,6 +48,8 @@ class UserRegisterView(APIView):
 
 
 class CheckOtpCodeView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         data = cache.get(key='register')
         serializer = serializers.GetOtpSerializer(data=request.data)
@@ -111,6 +115,8 @@ class UserEditProfileView(APIView):
 
 
 class CheckOTPCodeEmailChangeView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         data = cache.get(key='edit_email')
         serializer = serializers.GetOtpEmailChangeSerializer(data=request.data)

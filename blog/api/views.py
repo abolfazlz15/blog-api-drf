@@ -1,6 +1,8 @@
 from blog.api import serializers
+from blog.api.permissions import IsAuthorOrReadOnly
 from blog.models import Article
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -21,8 +23,12 @@ class ArticleDetailView(APIView):
 
 
 class ArticleDeleteView(APIView):
+
     def delete(self, request, pk):
+        self.permission_classes = [IsAuthorOrReadOnly]
         article = Article.objects.get(id=pk)
+        self.check_object_permissions(request, article)
+
         article.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -39,7 +45,9 @@ class ArticleAddView(APIView):
 
 class ArticleUpdateView(APIView):
     def put(self, request, pk):
+        self.permission_classes = [IsAuthorOrReadOnly]
         instance = Article.objects.get(id=pk)
+        self.check_object_permissions(request, instance)
         serializer = serializers.ArticleAddSrializer(instance=instance, data=request.data, partial=True)
 
         if serializer.is_valid():
