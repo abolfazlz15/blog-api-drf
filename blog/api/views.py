@@ -1,5 +1,5 @@
 from blog.api import serializers
-from blog.api.permissions import IsAuthorOrReadOnly
+from blog.api.permissions import IsAuthorOrReadOnly, IsAuthor
 from blog.models import Article
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
@@ -46,6 +46,7 @@ class ArticleDeleteView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class ArticleAddView(APIView):
+    permission_classes = [IsAuthor]
     def post(self, request):
         serializer = serializers.ArticleAddSrializer(data=request.data)
 
@@ -57,11 +58,19 @@ class ArticleAddView(APIView):
 
 
 class ArticleUpdateView(APIView):
+    permission_classes = [IsAuthorOrReadOnly]
+
     def put(self, request, pk):
-        self.permission_classes = [IsAuthorOrReadOnly]
+        
         instance = Article.objects.get(id=pk)
         self.check_object_permissions(request, instance)
-        serializer = serializers.ArticleAddSrializer(instance=instance, data=request.data, partial=True)
+        if request.user.is_admin or request.user.is_superuser:
+            print('1')
+            serializer = serializers.ArticleAddAdminSrializer(instance=instance, data=request.data, partial=True)
+        else:
+            serializer = serializers.ArticleAddAuthorSrializer(instance=instance, data=request.data, partial=True)
+
+            print('2')
 
         if serializer.is_valid():
             serializer.save()

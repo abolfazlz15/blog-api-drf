@@ -21,8 +21,19 @@ class ArticleDetailSrializer(serializers.ModelSerializer):
         exclude = ('status', 'updated_at')
 
 
-class ArticleAddSrializer(serializers.ModelSerializer):
+
+
+class ArticleAddAuthorSrializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    status = serializers.BooleanField(read_only=True)
+    author = serializers.IntegerField(read_only=True)
+    class Meta:
+        model = Article
+        exclude = ('updated_at',)
+
+
+class ArticleAddAdminSrializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     class Meta:
         model = Article
-        exclude = ('status', 'updated_at')
+        exclude = ('updated_at',)        
