@@ -13,8 +13,8 @@ class ArticleListView(ListAPIView):
     queryset = Article.objects.filter(status=True)
     serializer_class = serializers.ArticleListSrializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    search_fields = ['title']
-    filterset_fields = ['category']
+    search_fields = ['title', 'text']
+    filterset_fields = ['category', 'author', 'tag']
 
 
 # class ArticleListView(APIView):
@@ -65,14 +65,21 @@ class ArticleUpdateView(APIView):
         instance = Article.objects.get(id=pk)
         self.check_object_permissions(request, instance)
         if request.user.is_admin or request.user.is_superuser:
-            print('1')
             serializer = serializers.ArticleAddAdminSrializer(instance=instance, data=request.data, partial=True)
         else:
             serializer = serializers.ArticleAddAuthorSrializer(instance=instance, data=request.data, partial=True)
 
-            print('2')
-
         if serializer.is_valid():
             serializer.save()
             return Response({'result': 'article updated'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CategoryAddView(APIView):
+    def post(self, request):
+        serializer = serializers.CategorySerializer(data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'result': 'category added'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

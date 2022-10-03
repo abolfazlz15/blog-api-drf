@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from blog.models import Article
+from blog.models import Article, Category, Tag
 
 
 
@@ -37,3 +37,17 @@ class ArticleAddAdminSrializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         exclude = ('updated_at',)        
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('title',)
+
+    def validate_title(self, value):
+        object =  Category.objects.filter(title=value)
+
+        if object:
+            raise serializers.ValidationError({'error': 'this category exist'})
+        else:    
+            return value
