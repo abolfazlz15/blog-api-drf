@@ -40,9 +40,10 @@ class ArticleAddAdminSrializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
     class Meta:
         model = Category
-        fields = ('title',)
+        fields = ('title', 'id')
 
     def validate_title(self, value):
         object =  Category.objects.filter(title=value)

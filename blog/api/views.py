@@ -1,11 +1,11 @@
 from blog.api import serializers
 from blog.api.permissions import IsAuthorOrReadOnly, IsAuthor
-from blog.models import Article
+from blog.models import Article, Category
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, DestroyAPIView
 from rest_framework import filters
 
 
@@ -83,3 +83,12 @@ class CategoryAddView(APIView):
             serializer.save()
             return Response({'result': 'category added'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CategoryListView(ListAPIView):
+    queryset = Category.objects.all().order_by('-created_at',)
+    serializer_class = serializers.CategorySerializer
+
+class CategoryDeleteView(DestroyAPIView):
+    serializer_class = serializers.CategorySerializer
+    queryset = Category.objects.all()
