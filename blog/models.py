@@ -63,7 +63,7 @@ class Like(models.Model):
 
 class Comment(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='comments', verbose_name=_('Article'))
-    user = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='comment', verbose_name=_('User'))
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment', verbose_name=_('User'))
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies',
                                verbose_name=_('Subset'))
     text = models.TextField(verbose_name=_('Text'))

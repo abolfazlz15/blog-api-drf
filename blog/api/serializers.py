@@ -1,25 +1,16 @@
 from rest_framework import serializers
-from blog.models import Article, Category, Tag
+from blog.models import Article, Category, Tag, Comment
 
 
 
 class ArticleListSrializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(read_only=True, slug_field='full_name')
     category = serializers.SlugRelatedField(read_only=True, slug_field='title')
-    class Meta:
-        model = Article
-        fields = ('title', 'image', 'author', 'category')
-
-
-class ArticleDetailSrializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(read_only=True, slug_field='title')
-    tag = serializers.SlugRelatedField(read_only=True, slug_field='title')
-    author = serializers.SlugRelatedField(read_only=True, slug_field='full_name')
     id = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Article
-        exclude = ('status', 'updated_at')
-
+        fields = ('id', 'title', 'image', 'author', 'category')
 
 
 
@@ -52,3 +43,28 @@ class CategorySerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'error': 'this category exist'})
         else:    
             return value
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    user = serializers.CharField(required=False)
+
+    class Meta:
+        model = Comment
+        exclude = ('status',) 
+
+       
+class ArticleDetailSrializer(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(read_only=True, slug_field='title')
+    tag = serializers.SlugRelatedField(read_only=True, slug_field='title')
+    author = serializers.SlugRelatedField(read_only=True, slug_field='full_name')
+    id = serializers.IntegerField(read_only=True)
+    comments = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Article
+        exclude = ('status', 'updated_at')
+
+    def get_comments(self, obj):
+        serializer = CommentSerializer(instance=obj.comments.all(), many=True)
+        return serializer.data
