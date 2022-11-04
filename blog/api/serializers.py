@@ -48,10 +48,20 @@ class CategorySerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     user = serializers.CharField(required=False)
+    subsets = serializers.SerializerMethodField()
+    parent = serializers.PrimaryKeyRelatedField(required=False, queryset=Comment.objects.filter(parent=None))
 
     class Meta:
         model = Comment
         exclude = ('status',) 
+        extra_kwargs = {
+            'parent':{'write_only': True},
+        }
+
+    def get_subsets(self, obj):
+        serializer = CommentSerializer(instance=obj.replies.all(), many=True)
+        return serializer.data
+
 
        
 class ArticleDetailSrializer(serializers.ModelSerializer):
@@ -66,5 +76,5 @@ class ArticleDetailSrializer(serializers.ModelSerializer):
         exclude = ('status', 'updated_at')
 
     def get_comments(self, obj):
-        serializer = CommentSerializer(instance=obj.comments.all(), many=True)
+        serializer = CommentSerializer(instance=obj.comments.all().filter(parent=None), many=True)
         return serializer.data

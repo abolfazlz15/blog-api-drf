@@ -45,6 +45,7 @@ class ArticleDeleteView(APIView):
         article.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class ArticleAddView(APIView):
     permission_classes = [custom_permissions.IsAuthor]
     def post(self, request):
@@ -54,7 +55,6 @@ class ArticleAddView(APIView):
             serializer.save()
             return Response({'result': 'article added'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class ArticleUpdateView(APIView):
@@ -91,7 +91,7 @@ class CategoryListView(ListAPIView):
 
 
 class CategoryDeleteView(DestroyAPIView):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [custom_permissions.IsStaff]
     serializer_class = serializers.CategorySerializer
     queryset = Category.objects.all()
 

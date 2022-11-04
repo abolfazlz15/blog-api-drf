@@ -53,6 +53,7 @@ class Article(models.Model):
             return format_html('no image')
     showImage.short_description = 'image'
 
+
 class Like(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='likes', verbose_name=_('Article'))
     user = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='like', verbose_name=_('User'))
