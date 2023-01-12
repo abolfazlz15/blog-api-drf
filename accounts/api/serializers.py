@@ -8,13 +8,12 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
 
-
     def validate(self, attrs):
         user = authenticate(**attrs)
 
         if user:
             return user
-        raise serializers.ValidationError({'error': 'this user is not exist'})    
+        raise serializers.ValidationError({'error': 'this user is not exist'})
 
     def save(self, validated_data):
         refresh = RefreshToken.for_user(validated_data)
@@ -22,14 +21,14 @@ class LoginSerializer(serializers.Serializer):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         })
-                
+
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('email','password','full_name')
+        fields = ('email', 'password', 'full_name')
         extra_kwargs = {
-            'password':{'write_only': True},
+            'password': {'write_only': True},
         }
 
     def validate_password(self, value):
@@ -42,7 +41,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 class GetOtpSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=4)
-
 
     def save(self, validated_data):
         refresh = RefreshToken.for_user(validated_data)
@@ -59,16 +57,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email', 'full_name')
-    
 
     def validate_email(self, value):
         user = User.objects.filter(email=value)
         if user:
             raise serializers.ValidationError({'error': 'this email exist'})
-        else:    
+        else:
             return value
+
 
 class GetOtpEmailChangeSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=4)
-
-
