@@ -18,6 +18,8 @@ class ArticleListView(ListAPIView):
 
 
 class ArticleDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     def get(self, request, pk):
         instance = Article.objects.get(id=pk)
         serializer = serializers.ArticleDetailSrializer(instance=instance)
