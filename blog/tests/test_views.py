@@ -11,13 +11,13 @@ from blog.models import Article, Category, Tag
 
 class ArticleListViewTestCase(APITestCase):
     def setUp(self):
-        self.category = Category.objects.create(title="category")
+        self.category = Category.objects.create(title='category')
         self.user = User.objects.create_user(
             email='test@gmail.com', full_name='test', password='test1234')
-        self.tag = Tag.objects.create(title="tag")
+        self.tag = Tag.objects.create(title='tag')
         self.article = Article.objects.create(
-            title="Test article",
-            text="Test text",
+            title='Test article',
+            text='Test text',
             status=True,
             category=self.category,
             author=self.user,
