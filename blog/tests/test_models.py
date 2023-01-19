@@ -40,3 +40,39 @@ class ArticleModelTest(APITestCase):
     def test_str_method(self):
         expected_result = f'{self.article.title} - {self.article.text[:20]}'
         self.assertEqual(self.article.__str__(), expected_result)
+
+
+class TagTestCase(APITestCase):
+    @classmethod
+    def setUp(cls):
+        cls.tag = Tag.objects.create(title="Test Tag")
+
+    def test_title_lable(self):
+        field_label = self.tag._meta.get_field('title').verbose_name
+        self.assertEqual(field_label, _('Title'))
+
+    def test_created_at_label(self):
+        field_label = self.tag._meta.get_field('created_at').verbose_name
+        self.assertEqual(field_label, _('Created at'))
+
+    def test_tag_str(self):
+        tag = Tag.objects.get(title="Test Tag")
+        self.assertEqual(str(tag), "Test Tag")
+
+
+class CategoryTestCase(APITestCase):
+    @classmethod
+    def setUp(cls):
+        cls.category = Category.objects.create(title="Test Category")
+
+    def test_title_lable(self):
+        field_label = self.category._meta.get_field('title').verbose_name
+        self.assertEqual(field_label, _('Title'))
+        
+    def test_created_at_label(self):
+        field_label = self.category._meta.get_field('created_at').verbose_name
+        self.assertEqual(field_label, _('Created at'))
+
+    def test_category_str(self):
+        category = Category.objects.get(title="Test Category")
+        self.assertEqual(str(category), "Test Category")        
