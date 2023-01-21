@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from blog.api import permissions as custom_permissions
 from blog.api import serializers
 from blog.models import Article, Category
-
+from accounts.models import User
 
 class ArticleListView(ListAPIView):
     queryset = Article.objects.filter(status=True)
@@ -101,3 +101,9 @@ class CommentAddView(APIView):
             serializer.save()
             return Response({'result': 'comment added'})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AuthorListView(ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = User.objects.filter(is_author=True)
+    serializer_class = serializers.AuthorListSrializer

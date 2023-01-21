@@ -18,4 +18,5 @@ urlpatterns = [
     # Comment URL
     path('comment/add', views.CommentAddView.as_view(), name='comment-add'),
     
+    path('author', views.AuthorListView.as_view(), name='author-list'),
 ]
