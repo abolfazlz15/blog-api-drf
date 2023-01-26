@@ -12,3 +12,8 @@ class TestUrls(APISimpleTestCase):
     def test_register(self):
         url = reverse('accounts:register')
         self.assertEqual(resolve(url).func.view_class, views.UserRegisterView)
+    
+    def test_user_profile(self):
+        url = reverse('accounts:user-profile')
+        self.assertEqual(resolve(url).func.view_class, views.UserProfileView)
+
