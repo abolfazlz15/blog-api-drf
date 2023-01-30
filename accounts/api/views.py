@@ -1,17 +1,11 @@
-from random import randint
-
 from django.core.cache import cache
-from django.core.mail import EmailMessage
-from django.template.loader import render_to_string
-from django.utils import timezone
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
+from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.api import serializers
-from accounts.models import OTPCode, User
+from accounts.models import User
 from accounts.otp_service import OTP
 
 
@@ -73,88 +67,44 @@ class UserProfileView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# --- my old Update User code ---
-
-# class UserEditProfileView(APIView):
-#     def put(self, request):
-#         old_email = request.user.email
-
-#         instance = User.objects.get(email=request.user.email, full_name=request.user.full_name)
-#         serializer = serializers.UserProfileSerializer(instance=instance, data=request.data, partial=True)
-
-#         if serializer.is_valid():
-#             data = serializer.validated_data
-#             serializer.save()
-
-#             if old_email != data['email']:
-#                 randcode = randint(1000, 9999)
-#                 OTPCode.objects.create(email=data['email'], code=randcode)
-
-#                 cache.set(key='edit_email', value={'email': data['email'], 'code': randcode}, timeout=300)
-#                 print(cache.get(key='edit_email'))
-
-#                 # mail_subject = 'فعال سازی اکانت'
-#                 # message = render_to_string('accounts/active_email.html', {
-#                 #     'user': instance.email,
-#                 #     'code': randcode,
-#                 # })
-#                 # to_email = data['email']
-#                 # email = EmailMessage(
-#                 #     mail_subject, message, to=[to_email]
-#                 # )
-#                 # email.send()
-#                 return Response({'result': 'code sended to your email'})
-#             return Response({'Response': 'updated'})
-#         return Response(serializer.errors)
-
-
-# class CheckOTPCodeEmailChangeView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def post(self, request):
-#         data = cache.get(key='edit_email')
-#         serializer = serializers.GetOtpEmailChangeSerializer(data=request.data)
-#         otp = OTPCode.objects.get(code=data['code'], email=data['email'])
-
-
-#         if serializer.is_valid():
-#             expiration_date = otp.expiration_date + timezone.timedelta(minutes=2)
-#             if expiration_date < timezone.now():
-#                 otp.delete()
-#                 return Response({'error': 'your code is expire'})
-
-#             elif OTPCode.objects.filter(code=data['code'], email=data['email']).exists():
-#                 user = User.objects.get(email=request.user.email)
-#                 user.email = data['email']
-#                 user.save()
-#                 otp.delete()
-#                 return Response({'result': 'your profile was updated'})
-#             return Response({'error': 'this code not exist'})
-#         return Response(serializer.errors)
-
-
 class UpdateEmailView(APIView):
     permission_classes = (IsAuthenticated,)
+    serializer_class = serializers.UserProfileSerializer
 
     def put(self, request):
-        email = request.data["email"]
-        user = request.user
-        otp_service = OTP()
-        if email != user.email:
-            otp = otp_service.generate_otp(email)
-            if otp:
-                otp_service.send_otp(otp, email)
-                cache.set(key='edit_email', value={'email': email, 'code': otp}, timeout=300)
-                return Response({"detail": "OTP sent to the new email address. Provide the OTP for email verification",
-                                 "status": status.HTTP_202_ACCEPTED})
-            else:
-                return Response(
-                    {"detail": "Unable to send OTP, Please try again", "status": status.HTTP_400_BAD_REQUEST})
-        else:
-            user.email = email
-            user.save()
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data.get('email')
+            full_name = serializer.validated_data.get('full_name')
+            user = request.user
+            otp_service = OTP()
+        
+            if email == None:
+                email = request.user.email
 
-            return Response({'result': 'code sended to your email'})
+            if full_name == None:
+                full_name = request.user.full_name
+
+            if email != user.email:
+                otp = otp_service.generate_otp(email)
+                if otp:
+                    user.full_name = full_name
+                    user.save()
+                    otp_service.send_otp(otp, email)
+                    cache.set(key='edit_email', value={'email': email, 'code': otp}, timeout=300)
+                    return Response({"detail": "OTP sent to the new email address. Provide the OTP for email verification",
+                                     "status": status.HTTP_202_ACCEPTED})
+                else:
+                    return Response(
+                        {"detail": "Unable to send OTP, Please try again", "status": status.HTTP_400_BAD_REQUEST})
+            else:
+                user.email = email
+                user.full_name = full_name 
+                user.save()
+
+                return Response({'result': 'your profile is updated'})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class VerifyOTPView(APIView):
@@ -162,9 +112,9 @@ class VerifyOTPView(APIView):
 
     def post(self, request):
         test = cache.get(key='edit_email')
-        code = request.data["otp"]
+        code = request.data['code']
         otp_service = OTP()
-        is_valid = otp_service.verify_otp(code, test['email'])
+        is_valid = otp_service.verify_otp(otp=code, email=test['email'])
         if is_valid:
             user = request.user
             user.email = test['email']
