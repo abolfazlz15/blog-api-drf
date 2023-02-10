@@ -32,7 +32,6 @@ class UserRegisterView(APIView):
             cache.set(key='register', value={
                 'email': cd['email'], 'password': cd['password'], 'full_name': cd['full_name']},
                       timeout=300)
-            print(cache.get(key='register'))
 
             return Response({'email': cd['email'], 'result': 'email sended'}, status=status.HTTP_202_ACCEPTED)
         return Response(serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)

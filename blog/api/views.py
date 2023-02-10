@@ -4,10 +4,11 @@ from rest_framework.generics import DestroyAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from accounts.models import User
 from blog.api import permissions as custom_permissions
 from blog.api import serializers
 from blog.models import Article, Category
-from accounts.models import User
+
 
 class ArticleListView(ListAPIView):
     queryset = Article.objects.filter(status=True)

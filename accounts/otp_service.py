@@ -1,10 +1,11 @@
+import datetime
 import string
 from random import randint
-from django.utils import timezone
+
 from django.core.cache import cache
-import datetime
-from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.utils import timezone
 
 
 class OTP:
