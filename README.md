@@ -13,4 +13,4 @@
 - activate your venv: in windows `cd venv\scripts\activate` in linux: `venv/bin/activate`
 - Run `pip install -r requirements.txt`
 - Run `python manage.py collectstatic`
-- Run `python manage.py runserver to run project.
+- Run `python manage.py runserver` to run project.
