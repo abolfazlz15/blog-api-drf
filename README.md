@@ -1,5 +1,5 @@
 # API-BLOG
-## this project developing with DRF (django rest framework).
+## This project developing with DRF (django rest framework).
 ## This is a practice project to learn and gain experience.
 ### some features:
 - Compliance with the principles of test writing DRF
