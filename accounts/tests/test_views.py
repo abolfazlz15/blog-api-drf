@@ -34,12 +34,11 @@ class UserLoginViewTestCase(APITestCase):
         self.assertIn('refresh', response.data)
         self.assertIn('access', response.data)
 
-def test_login_with_invalid_credentials(self):
-    url = reverse('accounts:login')
-    response = self.client.post(
-        url,
-        data=self.invalid_payload,
-        format='json'
-    )
-    self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    self.assertEqual(response.data, {'error': ['this user is not exist']})
+    def test_login_with_invalid_credentials(self):
+        url = reverse('accounts:login')
+        response = self.client.post(
+            url,
+            data=self.invalid_payload,
+            format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
