@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  database:
+    container_name: blog_api_project_database
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    restart: always
+  
+  
+  app:
+    build:
+      context: .
+    image: app
+    container_name: blog_api_project_django_app
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --no-input --clear &&
+             gunicorn blogApiProject.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - static:/usr/src/app/static
+      - media:/usr/src/app/media
+    depends_on:
+      - database
+    environment:
+      - DEBUG=False
+      - ALLOWED_HOSTS=*
+      - DATABASE-NAME=postgres
+      - DATABASE-USER=postgres
+      - DATABASE-PASSWORD=postgres
+      - DATABASE-HOST=database
+      - DATABASE-PORT=5432
+  
+  
+  nginx:
+    image: nginx
+    container_name: blog_api_project_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - static:/var/www/static
+      - media:/var/www/media
+
+volumes:
+  postgres:
+  static:
+  media:
