@@ -1,5 +1,5 @@
 # API-BLOG
-## this project developing with DRF (django rest framework).
+## This project developing with DRF (django rest framework).
 ## This is a practice project to learn and gain experience.
 ### some features:
 - Compliance with the principles of test writing DRF
@@ -13,4 +13,4 @@
 - activate your venv: in windows `cd venv\scripts\activate` in linux: `venv/bin/activate`
 - Run `pip install -r requirements.txt`
 - Run `python manage.py collectstatic`
-- Run `python manage.py runserver to run project.
+- Run `python manage.py runserver` to run project.
