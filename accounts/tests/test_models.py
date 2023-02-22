@@ -4,7 +4,7 @@ from rest_framework.test import APITestCase
 from accounts.models import User
 
 
-class AuthorModelTest(APITestCase):
+class UserrModelTest(APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = User.objects.create(email='test@example.com', full_name='test', password='1234')

@@ -20,6 +20,6 @@ urlpatterns = [
     # user profile URL
     path('user', views.UserProfileView.as_view(), name='user-profile'),
     path('user/update', views.UpdateEmailView.as_view(), name='user-edit-profile'),
-    path('user/update/check', views.VerifyOTPView.as_view(), name='user-edit-profile'),
+    path('user/update/check', views.VerifyOTPView.as_view(), name='user-edit-profile-check-email'),
 
 ]

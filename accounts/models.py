@@ -38,13 +38,3 @@ class User(PermissionsMixin, AbstractBaseUser):
         return self.is_admin
 
 
-
-
-class OTPCode(models.Model):
-    email = models.CharField(max_length=200)
-    password = models.CharField(max_length=4, null=True)
-    code = models.SmallIntegerField()
-    expiration_date = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.email
