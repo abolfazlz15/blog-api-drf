@@ -26,5 +26,5 @@ class TestUrls(APISimpleTestCase):
         self.assertEqual(resolve(url).func.view_class, views.UpdateEmailView)
 
     def test_user_update_check_user(self):
-        url = reverse('accounts:user-user-edit-profile-check-email')
+        url = reverse('accounts:user-edit-profile-check-email')
         self.assertEqual(resolve(url).func.view_class, views.VerifyOTPView)                      
