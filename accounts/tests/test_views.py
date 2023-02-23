@@ -1,11 +1,13 @@
+import json
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from django.core import mail
-from django.core.cache import cache
-from unittest.mock import patch
-
+from rest_framework_simplejwt.tokens import RefreshToken
+from accounts.otp_service import OTP
 User = get_user_model()
 
 class UserLoginViewTestCase(APITestCase):
@@ -80,3 +82,56 @@ class UserRegisterViewTest(APITestCase):
         # Assert that user data was not cached
         cached_user_data = cache.get('register')
         self.assertIsNone(cached_user_data)
+
+
+
+class CheckOtpCodeViewTest(APITestCase):
+    def setUp(self):
+        # Set up any data needed for the test case
+        self.url = reverse('accounts:check-otp')
+
+        self.valid_data = {
+            'code': '1234'
+        }
+        # Set up test user data for creating a user after OTP validation
+        self.test_user_data = {
+            'email': 'test@test.com',
+            'full_name': 'Test User',
+            'password': 'testpassword'
+        }
+
+def test_valid_otp_code(self):
+    # Set up the cache with test data
+    cache.set(key='register-otp', value=self.test_user_data)
+    response = self.client.post(self.url, data=self.valid_data, format='json')
+    if response.status_code == status.HTTP_200_OK:
+        user_created = User.objects.filter(email=self.test_user_data['email']).exists()
+        if user_created:
+            # Check that a user was created with the correct data
+            user = User.objects.get(email=self.test_user_data['email'])
+            self.assertEqual(user.full_name, self.test_user_data['full_name'])
+            self.assertTrue(user.check_password(self.test_user_data['password']))
+            # Check that the register key was deleted from the cache
+            self.assertIsNone(cache.get('register-otp'))
+        else:
+            self.fail("A user was not created after validating a valid OTP code.")
+    else:
+        self.fail("The OTP code was not valid.")
+
+
+class UserProfileViewTestCase(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(email='testuser@example.com', full_name='testuser', password='testpass')
+        self.url = reverse('accounts:user-profile')
+        refresh = RefreshToken.for_user(self.user)
+        self.token = str(refresh.access_token)
+
+    def test_user_profile_view(self):
+     
+        response = self.client.get(self.url, HTTP_AUTHORIZATION=f'Bearer {self.token}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['email'])
+        self.assertEqual(json.loads(response.content), {'full_name': 'testuser', 'email': 'testuser@example.com'})
+
+
+

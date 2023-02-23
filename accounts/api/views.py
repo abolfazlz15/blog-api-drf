@@ -66,7 +66,7 @@ class UserProfileView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class UpdateEmailView(APIView):
+class UpdateProfileView(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = serializers.UserProfileSerializer
 
