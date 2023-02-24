@@ -5,9 +5,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.models import User
 from blog.api import serializers
-from blog.api.views import ArticleUpdateView
 from blog.models import Article, Category, Tag
 
+from rest_framework.test import APIClient
 
 class ArticleListViewTestCase(APITestCase):
     def setUp(self):
@@ -96,3 +96,35 @@ class ArticleUpdateViewTest(APITestCase):
 
         response = self.client.put(url, data=self.new_data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class ArticleDeleteViewTestCase(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email='test@gmail.com', full_name='test', password='test1234')
+        self.article = Article.objects.create(
+            title='Test Article', author=self.user, status=True)
+        self.refresh = RefreshToken.for_user(self.user)
+        self.token = str(self.refresh.access_token)
+        self.url = reverse('blog:article-delete', args=(self.article.id,))
+
+    def test_delete_article(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Article.objects.filter(pk=self.article.pk).exists())
+
+    def test_delete_article_unauthorized(self):
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertTrue(Article.objects.filter(pk=self.article.pk).exists())
+
+    def test_delete_article_not_author(self):
+        other_user = User.objects.create_user(
+            email='other@example.com', full_name='otheruser', password='othertest1234')
+        self.client.force_authenticate(user=other_user)
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(Article.objects.filter(pk=self.article.pk).exists())
+
+

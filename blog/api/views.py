@@ -42,7 +42,7 @@ class ArticleAddView(APIView):
     permission_classes = [custom_permissions.IsAuthor]
 
     def post(self, request):
-        serializer = serializers.ArticleAddSrializer(data=request.data)
+        serializer = serializers.ArticleAddAuthorSrializer(data=request.data)
 
         if serializer.is_valid():
             serializer.save()
